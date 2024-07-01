@@ -75,7 +75,7 @@ bool check_name(const char *first_name, const char *last_name, const char *passw
         will evaluate to True */
     const char *first = strstr(password, first_name);
     const char *last = strstr(password, last_name);
-    return !(first && last);
+    return !(first || last);
 }
 
 /* Returns true if PASSWORD meets the conditions specified above */
