@@ -77,7 +77,9 @@ main:
 # Think: why might having a1 be useful?
 f:
     # YOUR CODE GOES HERE!
-
+    slli a0, a0, 2	# Multiply input by 4 to use it as an index for the 'output' array
+    add a1, a1, a0	# Add the offset to the base address of the 'output' array
+    lw a0, 12(a1)	# Load the value from memory using the calculated address
     jr ra               # Always remember to jr ra after your function!
 
 print_int:
