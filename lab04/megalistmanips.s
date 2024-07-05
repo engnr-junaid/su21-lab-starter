@@ -66,20 +66,34 @@ map:
     # are modified by the callees, even when we know the content inside the functions 
     # we call. this is to enforce the abstraction barrier of calling convention.
 mapLoop:
-    add t1, s0, x0      # load the address of the array of current node into t1
+			#first mistake -----> add t1, s0, x0 
+    lw t1, 0(s0)	# load the address of the array of current node into t1 
     lw t2, 4(s0)        # load the size of the node's array into t2
-
-    add t1, t1, t0      # offset the array address by the count
+    			#  2nd mistake directly adding counter without multiplying by 4 -> add t1, t1, t0
+    slli t3, t0, 2      # offset the array address by the count
+    add t1, t1,t3
     lw a0, 0(t1)        # load the value at that address into a0
-
+   			
+    addi sp, sp, -12	# 3rd mistake was not initialzed and stored temporary registers in stack before jumping into another function
+    sw t0, 0(sp)
+    sw t1, 4(sp)
+    sw t2, 8(sp)
+   
     jalr s1             # call the function on that value.
 
+    lw t0, 0(sp)
+    lw t1, 4(sp)
+    lw t2, 8(sp)
+    addi sp, sp, 12
+    
     sw a0, 0(t1)        # store the returned value back into the array
     addi t0, t0, 1      # increment the count
     bne t0, t2, mapLoop # repeat if we haven't reached the array size yet
-
-    la a0, 8(s0)        # load the address of the next node into a0
-    lw a1, 0(s1)        # put the address of the function back into a1 to prepare for the recursion
+			
+			# 4th mistake ---> la a0, 8(s0) 	
+    lw a0, 8(s0)        # load the address of the next node into a0 
+    			# 5th mistake ----> lw a1, 0(s1)  
+    add a1, s1,x0        # put the address of the function back into a1 to prepare for the recursion
 
     jal  map            # recurse
 done:
@@ -87,7 +101,7 @@ done:
     lw s1, 4(sp)
     lw ra, 0(sp)
     addi sp, sp, 12
-
+    jr ra		# 6th mistake not returning back so added this instruction
 print_newline:
     li a1, '\n'
     li a0, 11
